@@ -1,0 +1,4 @@
+.container {
+    cursor: grab;
+    user-select: none;
+}
