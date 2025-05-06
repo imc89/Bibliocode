@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/Bibliocode/static/css/main.f3579b7c.css",
-    "main.js": "/Bibliocode/static/js/main.7bcffaa5.js",
+    "main.css": "/Bibliocode/static/css/main.4a7bfa1e.css",
+    "main.js": "/Bibliocode/static/js/main.50c34019.js",
     "static/js/453.232a0501.chunk.js": "/Bibliocode/static/js/453.232a0501.chunk.js",
+    "static/media/background.jpg": "/Bibliocode/static/media/background.897bace4752afc0466b1.jpg",
     "index.html": "/Bibliocode/index.html",
-    "main.f3579b7c.css.map": "/Bibliocode/static/css/main.f3579b7c.css.map",
-    "main.7bcffaa5.js.map": "/Bibliocode/static/js/main.7bcffaa5.js.map",
+    "main.4a7bfa1e.css.map": "/Bibliocode/static/css/main.4a7bfa1e.css.map",
+    "main.50c34019.js.map": "/Bibliocode/static/js/main.50c34019.js.map",
     "453.232a0501.chunk.js.map": "/Bibliocode/static/js/453.232a0501.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f3579b7c.css",
-    "static/js/main.7bcffaa5.js"
+    "static/css/main.4a7bfa1e.css",
+    "static/js/main.50c34019.js"
   ]
 }
