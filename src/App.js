@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import NavigationMenu from './components/NavigationMenu';
 import MyBooksScreen from './pages/MyBooksScreen';
 import BarcodeScannerScreen from './components/hola3';
@@ -23,9 +23,8 @@ function App() {
             return prevBooks;
         });
     };
-
     return (
-        <Router>
+        <Router> {/* Usamos el Router renombrado (que es HashRouter) */}
             <div>
                 <NavigationMenu />
                 <Routes>

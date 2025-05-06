@@ -290,6 +290,7 @@ a {
         flex-direction: row; /* Alinea los elementos en fila (portada a la izquierda, info a la derecha) */
         align-items: flex-start; /* Alinea los elementos verticalmente al inicio */
         height: auto;
+        width: 80%;
     }
 
     .bk-front,
@@ -300,6 +301,7 @@ a {
     .bk-bottom {
         position: relative; /* Para que .bk-cover se posicione correctamente */
         transform: none !important;
+        background: transparent;
         backface-visibility: visible;
         box-shadow: none;
         border-radius: 0;
