@@ -1,0 +1,217 @@
+.barcode-scanner-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 100vh;
+  /* Asegura que ocupe el 100% del alto del viewport */
+  box-sizing: border-box;
+  padding: 20px;
+  padding-top: 85px;
+  /* Ajusta el espacio superior */
+  padding-bottom: 85px;
+  overflow-y: auto;
+  /* Permite el desplazamiento si el contenido excede la altura */
+}
+
+/* Aseguramos que el contenido principal se centre adecuadamente */
+.scanning-area,
+.manual-input-container,
+.book-info-container {
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  /* Centrar en la pantalla */
+}
+
+/* Otros estilos para que los elementos se ajusten y mantengan el diseño centrado */
+.scanner-title,
+.manual-title {
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.scan-button,
+.manual-search-button,
+.add-book-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.scan-button:hover,
+.manual-search-button:hover,
+.add-book-button:hover {
+  background-color: #0056b3;
+}
+
+.scanning-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+.scanner-video {
+  width: 100%;
+  height: 200px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.scanner-instruction,
+.manual-instruction {
+  color: #555;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.scan-error {
+  color: #dc3545;
+  margin-top: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #007bff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.book-info-container {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.book-cover {
+  width: 150px;
+  height: auto;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.book-title {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.book-author,
+.book-isbn {
+  color: #555;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.book-description {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.manual-input-container {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.manual-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  width: 250px;
+  box-sizing: border-box;
+}
+
+.manual-search-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.warning {
+  color: red;
+  text-transform: uppercase;
+  background: white;
+  font-weight: bold;
+  font-size: 12px;
+  display: flex;
+  padding: 10px;
+  gap: 5px;
+  align-items: center;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+@media (max-width: 576px) {
+  .barcode-scanner-container {
+    padding-top: 100px;
+    /* Ajustamos el espacio superior */
+    padding-bottom: 100px;
+  }
+
+  .scanner-video {
+    height: 150px;
+    /* Reducción del tamaño del video en pantallas pequeñas */
+  }
+
+  .book-info-container {
+    width: 90%;
+    /* Se ajusta el ancho para pantallas más pequeñas */
+  }
+}

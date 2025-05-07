@@ -180,7 +180,6 @@ a {
     height: 100%;
     border-radius: 5px;
     overflow: hidden;
-    background-color: grey;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -290,6 +289,24 @@ a {
     background-color: #d32f2f;
 }
 
+.no-books-message {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    gap: 15px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: rgb(255 255 255 / 69%);
+    text-transform: uppercase;
+    font-size: 30px;
+    font-weight: bold;
+}
+
 /* =================================
    Estilos Responsivos (Móvil)
    ================================= */
@@ -297,7 +314,6 @@ a {
     #bk-list {
         flex-direction: column;
         align-items: center;
-        margin-bottom: 25px;
     }
 
     #bk-list li {
@@ -347,7 +363,6 @@ a {
         margin: 5px;
         background-size: cover;
         border-radius: 5px;
-
     }
 
     .bk-cover-back {
@@ -384,7 +399,7 @@ a {
         left: 0px;
         transform: none;
     }
-        
+
     .bk-remove-button {
         font-size: 0.85em;
         padding: 6px 12px;

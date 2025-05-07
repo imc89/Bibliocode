@@ -12,6 +12,7 @@ import {
     arrayMove,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { IoLibrarySharp } from "react-icons/io5";
 import './MyBooksScreen.css';
 
 const SortableBook = ({ book, index, removeBook }) => {
@@ -49,12 +50,21 @@ const SortableBook = ({ book, index, removeBook }) => {
             </div>
 
             <div className="bk-book">
-                <div className="bk-front" {...listeners}> {/* Drag handle aquí */}
-                    <div className="bk-cover-back"></div>
+                <div className="bk-front" {...listeners} > {/* Drag handle aquí */}
+                    <div className="bk-cover-back" style={{
+                        backgroundImage: book.cover ? `url(${book.cover})` : 'none',
+                        // backgroundPosition: 'center',
+                        backgroundSize: '1000%',
+                        zIndex: -1,
+                        filter: 'blur(1px)',
+                    }}></div>
                     <div
                         className="bk-cover"
                         style={{
-                            backgroundImage: book.cover ? `url(${book.cover})` : 'none',
+                            backgroundImage: book.cover
+                                ? `url(${book.cover}), url(${book.cover})`
+                                : 'none',
+                            // backgroundSize: '205px',
                         }}
                     ></div>
                 </div>
@@ -92,7 +102,10 @@ const MyBooksScreen = () => {
         <div className="container">
             <main className="main">
                 {myBooks.length === 0 ? (
-                    <p>No hay libros guardados.</p>
+                    <div className='no-books-message'>
+                        <IoLibrarySharp size={80} />
+                        No hay libros guardados.
+                    </div>
                 ) : (
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={myBooks.map(book => book.isbn)} strategy={verticalListSortingStrategy}>

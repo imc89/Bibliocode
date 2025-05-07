@@ -4,8 +4,9 @@ import {
   BarcodeFormat,
   DecodeHintType,
 } from "@zxing/library";
+import { BiSolidMessageAltError } from "react-icons/bi";
 
-import "./hola.css"; // Archivo CSS dedicado para esta pantalla
+import "./BarcodeScannerScreen.css"; // Archivo CSS dedicado para esta pantalla
 
 const BarcodeScannerScreen = ({ onBookAdded }) => {
   const [scanning, setScanning] = useState(false);
@@ -167,7 +168,11 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
         </div>
       )}
 
-      {scanError && <p className="scan-error">{scanError}</p>}
+
+      {scanError && <div className="warning">
+          <BiSolidMessageAltError  size={24} />
+          {scanError}
+        </div>}
 
       {loadingBookData && (
         <div className="loading-container">
