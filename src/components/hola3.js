@@ -1,160 +1,231 @@
 import React, { useState, useRef, useEffect } from "react";
-import { BrowserMultiFormatReader } from "@zxing/library";
-import "./spinner.css"; // Asegúrate de tener este archivo CSS
+import {
+  BrowserMultiFormatReader,
+  BarcodeFormat,
+  DecodeHintType,
+} from "@zxing/library";
 
-const BarcodeScannerScreen = ({ onBookAdded }) => { // Recibe una función para agregar el libro
-    const [scanning, setScanning] = useState(false);
-    const [result, setResult] = useState(null);
-    const [scannedBookData, setScannedBookData] = useState(null);
-    const [loadingBookData, setLoadingBookData] = useState(false);
-    const videoRef = useRef(null);
-    const codeReader = useRef(new BrowserMultiFormatReader());
+import "./hola.css"; // Archivo CSS dedicado para esta pantalla
 
-    useEffect(() => {
-        if (scanning && videoRef.current) {
-            startScanning();
-        } else {
-            stopScanning();
-        }
-        return () => stopScanning();
-    }, [scanning, videoRef.current]);
+const BarcodeScannerScreen = ({ onBookAdded }) => {
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState(null);
+  const [result, setResult] = useState(null);
+  const [scannedBookData, setScannedBookData] = useState(null);
+  const [loadingBookData, setLoadingBookData] = useState(false);
+  const [manualIsbn, setManualIsbn] = useState("");
+  const [isManualIsbnValid, setIsManualIsbnValid] = useState(false);
 
-    const startScanning = () => {
-        codeReader.current.decodeFromVideoDevice(
-            undefined,
-            videoRef.current,
-            (decodedResult, err) => {
-                if (decodedResult) {
-                    const isbn = decodedResult.getText();
-                    setResult(isbn);
-                    setScanning(false);
-                    fetchBookData(isbn);
-                }
-                if (err && !(err.name === "NotFoundException")) {
-                    console.error("Decoding error:", err);
-                }
-            }
-        );
-    };
+  const videoRef = useRef(null);
+  const scanTimeout = useRef(null);
+  const scanAttempt = useRef(0);
 
-    const stopScanning = () => {
-        codeReader.current.reset();
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject;
-            const tracks = stream.getTracks();
-            tracks.forEach((track) => track.stop());
-            videoRef.current.srcObject = null;
-        }
-    };
+  const hints = new Map();
+  hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.EAN_13]);
+  const codeReader = useRef(new BrowserMultiFormatReader(hints));
 
-    const fetchBookData = async (isbn) => {
-        setLoadingBookData(true);
-        let bookData = null;
-        let errorFromOpenLibrary = false;
+  useEffect(() => {
+    if (scanning && videoRef.current) {
+      startScanning();
 
-        try {
-            const response = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
-            if (!response.ok) {
-                errorFromOpenLibrary = true;
-                console.warn(`Open Library API error (${response.status}):`, response);
-            } else {
-                const data = await response.json();
-                const coverUrl = data.covers
-                    ? `https://covers.openlibrary.org/b/id/${data.covers[0]}-L.jpg`
-                    : null;
-                bookData = {
-                    title: data.title,
-                    isbn,
-                    cover: coverUrl,
-                };
-            }
-        } catch (error) {
-            errorFromOpenLibrary = true;
-            console.error("Error fetching book data from Open Library:", error);
-        }
-
-        if (errorFromOpenLibrary || !bookData) {
-            console.log("Trying Google Books API...");
-            try {
-                const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
-                if (!response.ok) {
-                    throw new Error(`Google Books API error (${response.status}): ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.items && data.items.length > 0) {
-                    const bookInfo = data.items[0].volumeInfo;
-                    const coverUrl = bookInfo.imageLinks?.large || bookInfo.imageLinks?.thumbnail || null;
-                    bookData = {
-                        title: bookInfo.title,
-                        isbn,
-                        author: bookInfo.authors ? bookInfo.authors.join(", ") : undefined,
-                        description: bookInfo.description,
-                        cover: coverUrl?.replace(/^http:/, 'https:'), // Ensure HTTPS
-                    };
-                } else {
-                    console.log("Book not found on Google Books either.");
-                }
-            } catch (error) {
-                console.error("Error fetching book data from Google Books:", error);
-            }
-        }
-
-        setScannedBookData(bookData);
-        setLoadingBookData(false);
+      scanTimeout.current = setTimeout(() => {
         setScanning(false);
-    };
+        setScanError(
+          `No se pudo detectar ningún código de barras después de varios intentos.\n
+Asegúrate de que el código de barras esté bien iluminado, enfocado y cerca de la cámara.\n
+Intenta de nuevo o ingresa el ISBN manualmente.`
+        );
+      }, 15000);
+    } else {
+      stopScanning();
+      clearTimeout(scanTimeout.current);
+      setScanError(null);
+      scanAttempt.current = 0;
+    }
 
-    const handleClickScan = () => {
-        setResult(null);
-        setScannedBookData(null);
-        setScanning(true);
+    return () => {
+      stopScanning();
+      clearTimeout(scanTimeout.current);
     };
+  }, [scanning]);
 
-    const handleAddBook = () => {
-        if (scannedBookData && onBookAdded) {
-            onBookAdded(scannedBookData);
-            setScannedBookData(null); // Limpiar los datos después de agregar
+  const startScanning = () => {
+    scanAttempt.current++;
+
+    codeReader.current.decodeFromVideoDevice(
+      undefined,
+      videoRef.current,
+      (decodedResult, err) => {
+        if (decodedResult) {
+          const isbn = decodedResult.getText();
+          setResult(isbn);
+          setScanning(false);
+          clearTimeout(scanTimeout.current);
+          fetchBookData(isbn);
         }
-    };
 
-    return (
-        <div>
-            <h2>Escanear ISBN</h2>
-            <button onClick={handleClickScan}>Escanear ISBN</button>
-
-            {scanning && (
-                <div>
-                    <video
-                        ref={videoRef}
-                        width="300"
-                        height="200"
-                        style={{ border: "1px solid black" }}
-                        autoPlay
-                    />
-                </div>
-            )}
-
-            {loadingBookData && (
-                <div className="spinner-container">
-                    <div className="spinner"></div>
-                    <p>Buscando información del libro...</p>
-                </div>
-            )}
-
-            {scannedBookData && !scanning && !loadingBookData && (
-                <div style={{ border: "1px solid gray", padding: "10px", marginTop: "20px" }}>
-                    {scannedBookData.cover && (
-                        <img src={scannedBookData.cover} alt="Book Cover" style={{ width: "150px" }} />
-                    )}
-                    <h3>{scannedBookData.title}</h3>
-                    {scannedBookData.author && <p><strong>Autor:</strong> {scannedBookData.author}</p>}
-                    <p><strong>ISBN:</strong> {scannedBookData.isbn}</p>
-                    {scannedBookData.description && <p><strong>Descripción:</strong> {scannedBookData.description.substring(0, 150)}...</p>}
-                    <button onClick={handleAddBook} style={{ marginTop: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '8px 15px', cursor: 'pointer' }}>Agregar a Mis Libros</button>
-                </div>
-            )}
-        </div>
+        if (
+          err &&
+          !(err.name === "NotFoundException" || err.message.includes("No MultiFormat Readers"))
+        ) {
+          console.warn(`Intento ${scanAttempt.current} fallido:`, err);
+        }
+      }
     );
+  };
+
+  const stopScanning = () => {
+    codeReader.current.reset();
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject;
+      stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const fetchBookData = async (isbn) => {
+    setLoadingBookData(true);
+    setScannedBookData(null);
+  
+    try {
+      const response = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+      if (!response.ok) throw new Error("Libro no encontrado");
+      const data = await response.json();
+  
+      // ✅ Limpiar error si llega un libro correctamente
+      setScanError(null);
+  
+      const bookData = {
+        title: data.title || "Título desconocido",
+        author: data.authors ? data.authors[0]?.name || "Autor desconocido" : null,
+        isbn,
+        cover: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`,
+        description: typeof data.description === "string"
+          ? data.description
+          : data.description?.value || "",
+      };
+  
+      setScannedBookData(bookData);
+    } catch (err) {
+      setScanError("No se pudo obtener la información del libro.");
+      console.error(err);
+    }
+  
+    setLoadingBookData(false);
+    setScanning(false);
+  };
+  
+
+  const handleClickScan = () => {
+    setResult(null);
+    setScannedBookData(null);
+    setScanError(null);
+    setScanning(true);
+  };
+
+  const handleAddBook = () => {
+    if (scannedBookData && onBookAdded) {
+      onBookAdded(scannedBookData);
+      setScannedBookData(null);
+    }
+  };
+
+  const handleManualIsbnChange = (event) => {
+    const value = event.target.value;
+    if (/^\d*$/.test(value) && value.length <= 13) {
+      setManualIsbn(value);
+      setIsManualIsbnValid(value.length === 13);
+    }
+  };
+
+  const handleSearchManualIsbn = () => {
+    if (isManualIsbnValid) {
+      fetchBookData(manualIsbn);
+    }
+  };
+
+  return (
+    <div className="barcode-scanner-container">
+      <h2 className="scanner-title">Escanear ISBN</h2>
+      <button className="scan-button" onClick={handleClickScan}>
+        Escanear ISBN
+      </button>
+
+      {scanning && (
+        <div className="scanning-area">
+          <video
+            ref={videoRef}
+            className="scanner-video"
+            autoPlay
+          />
+          <p className="scanner-instruction">
+            Apunta la cámara al código de barras del ISBN.
+          </p>
+          <p className="scanner-instruction">
+            Asegúrate de que esté bien iluminado y enfocado.
+          </p>
+        </div>
+      )}
+
+      {scanError && <p className="scan-error">{scanError}</p>}
+
+      {loadingBookData && (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p className="loading-text">Buscando información del libro...</p>
+        </div>
+      )}
+
+      {scannedBookData && !scanning && !loadingBookData && (
+        <div className="book-info-container">
+          {scannedBookData.cover && (
+            <img
+              src={scannedBookData.cover}
+              alt="Portada del libro"
+              className="book-cover"
+            />
+          )}
+          <h3 className="book-title">{scannedBookData.title}</h3>
+          {scannedBookData.author && (
+            <p className="book-author">
+              <strong>Autor:</strong> {scannedBookData.author}
+            </p>
+          )}
+          <p className="book-isbn">
+            <strong>ISBN:</strong> {scannedBookData.isbn}
+          </p>
+          {scannedBookData.description && (
+            <p className="book-description">
+              <strong>Descripción:</strong>{" "}
+              {scannedBookData.description.substring(0, 150)}...
+            </p>
+          )}
+          <button className="add-book-button" onClick={handleAddBook}>
+            Agregar a Mis Libros
+          </button>
+        </div>
+      )}
+
+      <div className="manual-input-container">
+        <h3 className="manual-title">¿No puedes escanear?</h3>
+        <p className="manual-instruction">Ingresa el ISBN manualmente:</p>
+        <input
+          type="text"
+          className="manual-input"
+          placeholder="Ingresar ISBN (13 dígitos)"
+          value={manualIsbn}
+          onChange={handleManualIsbnChange}
+        />
+        <button
+          className="manual-search-button"
+          onClick={handleSearchManualIsbn}
+          disabled={!isManualIsbnValid}
+        >
+          Buscar por ISBN
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default BarcodeScannerScreen;

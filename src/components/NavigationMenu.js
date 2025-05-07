@@ -1,17 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { SlSettings } from "react-icons/sl";
+import { CiBarcode } from "react-icons/ci";
+import './NavigationMenu.css'; // Importa el archivo CSS para estilos
 
 const NavigationMenu = () => {
     return (
-        <nav>
-            <ul>
-                <li>
-                    <Link to="/">Mis Libros</Link>
-                </li>
-                <li>
-                    <Link to="/scanner">Escanear ISBN</Link>
-                </li>
-            </ul>
+        <nav className="responsive-nav">
+            <div className="nav-header">
+                <Link to="/" className="nav-button nav-left">
+                    <SlSettings size={24} />
+                </Link>
+                <Link to="/" className="nav-button nav-center">
+                    MY BOOKS
+                </Link>
+                <Link to="/scanner" className="nav-button nav-right">
+                    <CiBarcode size={24} />
+                </Link>
+            </div>
         </nav>
     );
 };

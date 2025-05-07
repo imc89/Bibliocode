@@ -1,7 +1,7 @@
 /* =================================
    Estilos Generales
    ================================= */
-   html {
+html {
     height: 100%;
     box-sizing: border-box;
 }
@@ -39,19 +39,20 @@ a {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding-top: 20px;
+    padding-bottom: 40px;
 }
 
 /* =================================
    Encabezado
    ================================= */
-.container > header {
+.container>header {
     padding: 20px 0;
     text-align: center;
     margin-bottom: 30px;
 }
 
-.container > header h1 {
+.container>header h1 {
     font-size: 2.5em;
     font-weight: 700;
     color: #333;
@@ -63,9 +64,10 @@ a {
 .main {
     position: relative;
     padding-bottom: 60px;
+    margin-top: 65px;
 }
 
-.main > p {
+.main>p {
     font-size: 1.1em;
     color: #777;
     text-align: center;
@@ -80,7 +82,7 @@ a {
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 #bk-list li {
@@ -88,10 +90,11 @@ a {
     width: 200px;
     height: 300px;
     perspective: 1500px;
+    position: relative;
 }
 
 /* =================================
-   Libro Individual (Estilos 3D - se desactivan en responsive)
+   Libro Individual (Estilos 3D)
    ================================= */
 .bk-book {
     position: relative;
@@ -100,10 +103,6 @@ a {
     transform-style: preserve-3d;
     transition: transform 0.5s ease-in-out;
     cursor: grab;
-}
-
-.bk-book:hover {
-    transform: rotateY(20deg);
 }
 
 .bk-front,
@@ -194,6 +193,17 @@ a {
     width: 100%;
     height: 100%;
     transform: translateZ(-1px);
+    box-shadow: rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset,
+        rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset,
+        rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset,
+        rgba(0, 0, 0, 0.06) 0px 2px 1px,
+        rgba(0, 0, 0, 0.09) 0px 4px 2px,
+        rgba(0, 0, 0, 0.09) 0px 8px 4px,
+        rgba(0, 0, 0, 0.09) 0px 16px 8px,
+        rgba(0, 0, 0, 0.09) 0px 32px 16px,
+        rgb(0 0 0 / 17%) 1px 3px 5px 9px,
+        rgb(0 0 0 / 27%) 0px 0px 7px 9px;
+
 }
 
 .bk-left h2 {
@@ -216,24 +226,35 @@ a {
     line-height: 1.2;
 }
 
+/* =================================
+   Info del Libro
+   ================================= */
 .bk-info {
     position: absolute;
-    bottom: -140px;
+    bottom: 0px;
     left: 0;
     width: 100%;
     text-align: center;
     opacity: 0;
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transform-style: preserve-3d;
     transform: translateY(20px);
     padding: 10px;
     background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
+    border-radius: 0 0 5px 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 9;
 }
 
 #bk-list li:hover .bk-info {
     opacity: 1;
-    transform: translateY(0);
+    left: 5px;
+    transform: translateY(0) rotateY(20deg);
+}
+
+#bk-list li:hover .bk-book {
+    opacity: 1;
+    transform: translateY(0) rotateY(20deg);
 }
 
 .bk-info h3 {
@@ -245,7 +266,7 @@ a {
 .bk-info h3 span {
     display: block;
     font-size: 0.8em;
-    color: #777;
+    color: black;
 }
 
 .bk-info p {
@@ -270,27 +291,37 @@ a {
 }
 
 /* =================================
-   Estilos Responsivos (Móvil) - MEJORADO
+   Estilos Responsivos (Móvil)
    ================================= */
 @media (max-width: 576px) {
     #bk-list {
-        justify-content: flex-start; /* Alinea los libros a la izquierda en móvil */
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 25px;
     }
 
     #bk-list li {
-        width: 100%;
+        width: 90%;
         height: auto;
         margin: 10px 0;
-        perspective: none; /* Desactiva la perspectiva 3D en móvil */
+        perspective: none;
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: flex-start;
+        position: relative;
+        background: rgb(255 255 255 / 40%);
+        padding: 10px;
+        border-radius: 10px;
     }
 
     .bk-book {
-        transform: none !important; /* Desactiva la transformación 3D */
-        display: flex; /* Usa flex para alinear portada e info */
-        flex-direction: row; /* Alinea los elementos en fila (portada a la izquierda, info a la derecha) */
-        align-items: flex-start; /* Alinea los elementos verticalmente al inicio */
+        transform: none !important;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
         height: auto;
-        width: 80%;
+        width: auto;
+        flex-shrink: 0;
     }
 
     .bk-front,
@@ -299,47 +330,44 @@ a {
     .bk-right,
     .bk-top,
     .bk-bottom {
-        position: relative; /* Para que .bk-cover se posicione correctamente */
+        position: relative;
         transform: none !important;
         background: transparent;
+        /* Aseguramos que el frente tenga un fondo blanco */
         backface-visibility: visible;
         box-shadow: none;
         border-radius: 0;
         flex-basis: auto;
-        display: block; /* Asegura que ocupe su ancho */
+        display: block;
     }
 
     .bk-cover {
         width: 100px;
-        height: 150px;
-        margin-right: 15px;
+        height: 140px;
+        margin: 5px;
         background-size: cover;
-        flex-shrink: 0; /* Evita que la portada se encoja */
+        border-radius: 5px;
+
     }
 
-    .bk-left,
-    .bk-right,
-    .bk-back {
-        display: none !important; /* Oculta las caras no visibles en la vista plana */
+    .bk-cover-back {
+        box-shadow: inset 0px 0px 20px 0px rgba(0, 0, 0, 1);
     }
+
 
     .bk-info {
-        position: relative; /* Ya no es absoluta dentro del libro 3D */
-        opacity: 1; /* Siempre visible en móvil */
-        transform: translateY(0); /* No aplicar la traslación inicial */
-        text-align: left; /* Alinea el texto a la izquierda */
-        flex-grow: 1; /* La info ocupa el espacio restante */
-        background-color: transparent; /* Fondo transparente para la info */
+        position: relative;
+        opacity: 1;
+        transform: none;
+        padding: 5px 10px;
+        background: none;
         box-shadow: none;
-        padding: 0;
-        bottom: auto; /* Reinicia la posición bottom */
-        left: auto; /* Reinicia la posición left */
-        margin-top: 0; /* Asegura que no haya margen superior extra */
+        text-align: left;
     }
 
     .bk-info h3 {
-        font-size: 1.1em;
-        margin-top: 0; /* Reduce el margen superior del título */
+        font-size: 1em;
+        margin-bottom: 5px;
     }
 
     .bk-info h3 span {
@@ -347,13 +375,26 @@ a {
     }
 
     .bk-info p {
-        font-size: 0.9em;
-        margin-bottom: 5px; /* Reduce el margen inferior del párrafo */
+        font-size: 0.85em;
+        margin-bottom: 8px;
     }
 
+    #bk-list li:hover .bk-info {
+        opacity: 1;
+        left: 0px;
+        transform: none;
+    }
+        
     .bk-remove-button {
-        /* Mantén los estilos del botón, pero asegúrate de que sea visible */
-        display: inline-block; /* Asegura que el botón sea visible y ocupe solo el espacio necesario */
-        margin-top: 10px; /* Añade un poco de espacio al botón */
+        font-size: 0.85em;
+        padding: 6px 12px;
+    }
+
+    .bk-left,
+    .bk-right,
+    .bk-back,
+    .bk-top,
+    .bk-bottom {
+        display: none !important;
     }
 }

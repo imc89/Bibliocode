@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import NavigationMenu from './components/NavigationMenu';
+import Footer from './components/Footer/Footer';
 import MyBooksScreen from './pages/MyBooksScreen';
 import BarcodeScannerScreen from './components/hola3';
 
@@ -31,6 +32,7 @@ function App() {
                     <Route path="/" element={<MyBooksScreen />} />
                     <Route path="/scanner" element={<BarcodeScannerScreen onBookAdded={addBookToMyBooks} />} />
                 </Routes>
+                <Footer/>
             </div>
         </Router>
     );

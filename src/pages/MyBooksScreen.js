@@ -30,6 +30,24 @@ const SortableBook = ({ book, index, removeBook }) => {
 
     return (
         <li ref={setNodeRef} style={style} {...attributes}>
+            <div className="bk-info">
+                <h3>
+                    <span>{book.author || 'Autor'}</span>
+                    <span>{book.title || 'Título'}</span>
+                </h3>
+                <p>{book.shortDescription || 'Sin descripción corta.'}</p>
+                <button
+                    className="bk-remove-button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation(); // ya incluido, está bien
+                        removeBook(book.isbn);
+                    }}
+                >
+                    Eliminar
+                </button>
+            </div>
+
             <div className="bk-book">
                 <div className="bk-front" {...listeners}> {/* Drag handle aquí */}
                     <div className="bk-cover-back"></div>
@@ -39,24 +57,6 @@ const SortableBook = ({ book, index, removeBook }) => {
                             backgroundImage: book.cover ? `url(${book.cover})` : 'none',
                         }}
                     ></div>
-                </div>
-                {/* ... resto igual */}
-                <div className="bk-info">
-                    <h3>
-                        <span>{book.author || 'Autor'}</span>
-                        <span>{book.title || 'Título'}</span>
-                    </h3>
-                    <p>{book.shortDescription || 'Sin descripción corta.'}</p>
-                    <button
-                        className="bk-remove-button"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation(); // ya incluido, está bien
-                            removeBook(book.isbn);
-                        }}
-                    >
-                        Eliminar
-                    </button>
                 </div>
             </div>
         </li>
@@ -90,9 +90,6 @@ const MyBooksScreen = () => {
 
     return (
         <div className="container">
-            <header>
-                <h1>Mis Libros</h1>
-            </header>
             <main className="main">
                 {myBooks.length === 0 ? (
                     <p>No hay libros guardados.</p>

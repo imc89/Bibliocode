@@ -5,7 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
+  background-image: url('../public/img/background.jpg'); /* Ruta relativa a la carpeta public */
+  background-size: cover; /* Ajusta según tus necesidades */}
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

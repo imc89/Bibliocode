@@ -1,26 +1,51 @@
-.navigation-menu {
-    background-color: #f0f0f0;
-    padding: 10px 0;
+.responsive-nav {
+  background-color: #2c3e50; /* Un tono oscuro */
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: center; /* Centrar el contenido principal en móvil */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  position: fixed; /* Fijar al fondo de la ventana */
+  z-index: 10; /* Asegurar que esté por encima de otros elementos */
+
+}
+
+.nav-header {
+  display: flex;
+  width: 100%;
+  max-width: 768px; /* Ancho máximo para centrar en pantallas grandes */
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: box-shadow 0.3s ease-in-out;
+  min-width: 80px; /* Ancho mínimo para los botones */
+  box-sizing: border-box; /* Incluir padding y border en el ancho */
+}
+
+.nav-button:hover {
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.7);
+  background: #404d5c;
+}
+
+.nav-center {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+
+/* Estilos para pantallas más grandes */
+@media (min-width: 768px) {
+  .responsive-nav {
+      justify-content: center; /* Centrar la barra en pantallas grandes */
   }
-  
-  .navigation-menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .navigation-menu li {
-    margin: 0 15px;
-  }
-  
-  .navigation-menu li a {
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-  }
-  
-  .navigation-menu li a:hover {
-    color: #007bff;
-  }
+}
