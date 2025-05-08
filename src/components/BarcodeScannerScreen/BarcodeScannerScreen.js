@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   BrowserMultiFormatReader,
   BarcodeFormat,
@@ -84,38 +84,99 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
     }
   };
 
-  const fetchBookData = async (isbn) => {
+  const fetchBookData = useCallback(async (isbn) => {
     setLoadingBookData(true);
     setScannedBookData(null);
-  
+
     try {
-      const response = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
-      if (!response.ok) throw new Error("Libro no encontrado");
-      const data = await response.json();
-  
-      // ✅ Limpiar error si llega un libro correctamente
-      setScanError(null);
-  
-      const bookData = {
-        title: data.title || "Título desconocido",
-        author: data.authors ? data.authors[0]?.name || "Autor desconocido" : null,
+      // Intentar con OpenLibrary (primera llamada por ISBN)
+      const resIsbn = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+      if (!resIsbn.ok) throw new Error("No encontrado en OpenLibrary (ISBN)");
+      const dataIsbn = await resIsbn.json();
+
+      let title = dataIsbn.title || "Título desconocido";
+      let description = "";
+      let author = "Autor desconocido";
+      let worksKey = dataIsbn.works?.[0]?.key;
+      let publishers = dataIsbn.publishers || [];
+      let numberOfPages = dataIsbn.number_of_pages || null;
+
+      // Buscar descripción más detallada y author key desde la 'obra' (segunda llamada)
+      if (worksKey) {
+        const resWorks = await fetch(`https://openlibrary.org${worksKey}.json`);
+        if (resWorks.ok) {
+          const dataWorks = await resWorks.json();
+
+          if (typeof dataWorks.description === "string") {
+            description = dataWorks.description;
+          } else if (dataWorks.description?.value) {
+            description = dataWorks.description.value;
+          }
+
+          if (dataWorks.authors?.[0]?.author?.key) {
+            const authorKey = dataWorks.authors[0].author.key;
+            const authorId = authorKey.split('/').pop();
+            const resAuthor = await fetch(`https://openlibrary.org/authors/${authorId}.json`);
+            if (resAuthor.ok) {
+              const authorData = await resAuthor.json();
+              author = authorData.name || author;
+            } else {
+              console.warn("Error fetching author data:", resAuthor.status);
+            }
+          }
+        } else {
+          console.warn("Error fetching works data:", resWorks.status);
+        }
+      }
+
+      setScannedBookData({
+        title,
+        author,
         isbn,
         cover: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`,
-        description: typeof data.description === "string"
-          ? data.description
-          : data.description?.value || "",
-      };
-  
-      setScannedBookData(bookData);
+        description,
+        publishers,
+        numberOfPages,
+      });
+
+      setScanError(null);
     } catch (err) {
-      setScanError("No se pudo obtener la información del libro.");
-      console.error(err);
+      console.warn("Fallo en OpenLibrary, intentando Google Books...", err);
+      await fetchFromGoogleBooks(isbn);
     }
-  
+
     setLoadingBookData(false);
     setScanning(false);
-  };
-  
+  }, []);
+
+  const fetchFromGoogleBooks = useCallback(async (isbn) => {
+    try {
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+      const data = await res.json();
+
+      if (!data.items || data.totalItems === 0) {
+        throw new Error("Libro no encontrado en Google Books.");
+      }
+
+      const volume = data.items[0].volumeInfo;
+
+      const bookData = {
+        title: volume.title || "Título desconocido",
+        author: volume.authors?.[0] || "Autor desconocido",
+        isbn,
+        cover: volume.imageLinks?.thumbnail || "",
+        description: volume.description || "",
+        publishers: volume.publisher ? [volume.publisher] : [],
+        numberOfPages: volume.pageCount || null,
+      };
+
+      setScannedBookData(bookData);
+      setScanError(null);
+    } catch (err) {
+      setScanError("No se pudo obtener información del libro en ninguna fuente.");
+      console.error("Fallo también en Google Books:", err);
+    }
+  }, []);
 
   const handleClickScan = () => {
     setResult(null);
@@ -142,6 +203,8 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
   const handleSearchManualIsbn = () => {
     if (isManualIsbnValid) {
       fetchBookData(manualIsbn);
+      setManualIsbn(""); // Limpiar el input después de la búsqueda
+      setIsManualIsbnValid(false); // Resetear la validez
     }
   };
 
@@ -154,11 +217,7 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
 
       {scanning && (
         <div className="scanning-area">
-          <video
-            ref={videoRef}
-            className="scanner-video"
-            autoPlay
-          />
+          <video ref={videoRef} className="scanner-video" autoPlay />
           <p className="scanner-instruction">
             Apunta la cámara al código de barras del ISBN.
           </p>
@@ -168,11 +227,12 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
         </div>
       )}
 
-
-      {scanError && <div className="warning">
-          <BiSolidMessageAltError  size={24} />
+      {scanError && (
+        <div className="warning">
+          <BiSolidMessageAltError size={24} />
           {scanError}
-        </div>}
+        </div>
+      )}
 
       {loadingBookData && (
         <div className="loading-container">
@@ -199,6 +259,16 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
           <p className="book-isbn">
             <strong>ISBN:</strong> {scannedBookData.isbn}
           </p>
+          {scannedBookData.publishers && scannedBookData.publishers.length > 0 && (
+            <p className="book-publishers">
+              <strong>Editorial:</strong> {scannedBookData.publishers.join(', ')}
+            </p>
+          )}
+          {scannedBookData.numberOfPages !== null && (
+            <p className="book-pages">
+              <strong>Páginas:</strong> {scannedBookData.numberOfPages}
+            </p>
+          )}
           {scannedBookData.description && (
             <p className="book-description">
               <strong>Descripción:</strong>{" "}

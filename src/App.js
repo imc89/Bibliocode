@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import MyBooksPage from './pages/MyBooksPage';
+import MyReadingsPage from './pages/MyReadingsPage';
 import ScanPage from './pages/ScanPage';
+import EditBookPage from './pages/EditBookPage';
 
 function App() {
     const [myBooks, setMyBooks] = useState(() => {
@@ -20,6 +22,8 @@ function App() {
                 <Routes>
                     <Route path="/" element={<MyBooksPage />} />
                     <Route path="/scanner" element={<ScanPage />} />
+                    <Route path="/editar/:isbn" element={<EditBookPage />} />
+                    <Route path="/reading" element={<MyReadingsPage />} />
                 </Routes>
             </div>
         </Router>

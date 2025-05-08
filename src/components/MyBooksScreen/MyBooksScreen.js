@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import {
     DndContext,
     closestCenter,
@@ -13,9 +15,31 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { IoLibrarySharp } from "react-icons/io5";
+import { MdEditDocument } from "react-icons/md";
+import { FiFileText } from "react-icons/fi";
+import { BiSolidBookmark } from "react-icons/bi";
+import { FcBookmark } from "react-icons/fc";
+
 import './MyBooksScreen.css';
 
-const SortableBook = ({ book, index, removeBook }) => {
+// ✅ Modal de descripción
+const DescriptionModal = ({ isOpen, onClose, description }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <h2>Descripción</h2>
+                <p className="modal-description">{description || 'Sin descripción corta.'}</p>
+                <button onClick={onClose}>Cerrar</button>
+            </div>
+        </div>
+    );
+};
+
+// ✅ Componente de libro ordenable
+const SortableBook = ({ book, index, removeBook, onShowDescription, toggleReadingStatus }) => {
+    const navigate = useNavigate();
     const {
         attributes,
         listeners,
@@ -31,29 +55,76 @@ const SortableBook = ({ book, index, removeBook }) => {
 
     return (
         <li ref={setNodeRef} style={style} {...attributes}>
+            {book.status === 'Leyendo' ? (
+                <div className="bookmark-container leyendo" onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleReadingStatus(book.isbn);
+                }}>
+                    <FcBookmark size={34} style={{ stroke: 'black', strokeWidth: 2.5 }}  className="active-bookmark" />
+                </div>
+            ) : (
+                <div className="bookmark-container no-leyendo" onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleReadingStatus(book.isbn);
+                }}>
+                    <BiSolidBookmark size={32} style={{ stroke: 'black', strokeWidth: 1.5 }}  className="inactive-bookmark" />
+                    {/* <BsBookmark size={30} className="inactive-bookmark" /> */}
+                </div>
+            )}
             <div className="bk-info">
-                <h3>
-                    <span>{book.author || 'Autor'}</span>
-                    <span>{book.title || 'Título'}</span>
-                </h3>
-                <p>{book.shortDescription || 'Sin descripción corta.'}</p>
-                <button
-                    className="bk-remove-button"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation(); // ya incluido, está bien
-                        removeBook(book.isbn);
-                    }}
-                >
-                    Eliminar
-                </button>
+                <b className="book-title">{book.title || 'Autor'}</b>
+
+                {book.author && book.author.length > 0 && (
+                    <p className="book-author"><strong>Autor:</strong> {book.author}</p>
+                )}
+                {book.publishers && book.publishers.length > 0 && (
+                    <p className="book-publishers"><strong>Editorial:</strong> {Array.isArray(book.publishers) ? book.publishers.join(', ') : book.publishers}</p>
+                )}
+                {book.numberOfPages !== null && (
+                    <p className="book-pages"><strong>Páginas:</strong> {book.numberOfPages}</p>
+                )}
+                <div className="bk-buttons">
+                    <button
+                        className="bk-remove-button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeBook(book.isbn);
+                        }}
+                    >
+                        Eliminar
+                    </button>
+                    <button
+                        className="bk-edit-button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            navigate(`/editar/${book.isbn}`);
+                        }}
+                    >
+                        <MdEditDocument size={20} />
+                    </button>
+                    {book.description && (
+                        <button
+                            className="bk-desc-button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onShowDescription(book.description);
+                            }}
+                        >
+                            <FiFileText size={20} />
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="bk-book">
-                <div className="bk-front" {...listeners} > {/* Drag handle aquí */}
+                <div className="bk-front" {...listeners}>
                     <div className="bk-cover-back" style={{
                         backgroundImage: book.cover ? `url(${book.cover})` : 'none',
-                        // backgroundPosition: 'center',
                         backgroundSize: '1000%',
                         zIndex: -1,
                         filter: 'blur(1px)',
@@ -64,7 +135,6 @@ const SortableBook = ({ book, index, removeBook }) => {
                             backgroundImage: book.cover
                                 ? `url(${book.cover}), url(${book.cover})`
                                 : 'none',
-                            // backgroundSize: '205px',
                         }}
                     ></div>
                 </div>
@@ -73,15 +143,24 @@ const SortableBook = ({ book, index, removeBook }) => {
     );
 };
 
+// ✅ Pantalla principal
 const MyBooksScreen = () => {
     const [myBooks, setMyBooks] = useState(() => {
         const storedBooks = localStorage.getItem('myBooks');
         return storedBooks ? JSON.parse(storedBooks) : [];
     });
+    const [readingList, setReadingList] = useState(() => {
+        const storedReading = localStorage.getItem('readingList');
+        return storedReading ? JSON.parse(storedReading) : [];
+    });
 
     useEffect(() => {
         localStorage.setItem('myBooks', JSON.stringify(myBooks));
     }, [myBooks]);
+
+    useEffect(() => {
+        localStorage.setItem('readingList', JSON.stringify(readingList));
+    }, [readingList]);
 
     const sensors = useSensors(useSensor(PointerSensor));
 
@@ -96,6 +175,33 @@ const MyBooksScreen = () => {
 
     const removeBook = (isbn) => {
         setMyBooks((prev) => prev.filter(book => book.isbn !== isbn));
+        setReadingList((prevList) => prevList.filter(book => book.isbn !== isbn)); // Remove from reading list as well
+    };
+
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedDescription, setSelectedDescription] = useState('');
+
+    const toggleReadingStatus = (isbn) => {
+        const bookToToggle = myBooks.find(book => book.isbn === isbn);
+        if (!bookToToggle) return;
+
+        const isCurrentlyReading = readingList.some(book => book.isbn === isbn);
+
+        if (isCurrentlyReading) {
+            // Si está en la lista de leyendo, lo removemos
+            setReadingList(prevList => prevList.filter(book => book.isbn !== isbn));
+            // Y actualizamos el status en la lista principal
+            setMyBooks(prevBooks => prevBooks.map(book =>
+                book.isbn === isbn ? { ...book, status: 'Para leer' } : book
+            ));
+        } else {
+            // Si no está en la lista de leyendo, lo añadimos
+            setReadingList(prevList => [...prevList, bookToToggle]);
+            // Y actualizamos el status en la lista principal
+            setMyBooks(prevBooks => prevBooks.map(book =>
+                book.isbn === isbn ? { ...book, status: 'Leyendo' } : book
+            ));
+        }
     };
 
     return (
@@ -116,6 +222,11 @@ const MyBooksScreen = () => {
                                         book={book}
                                         index={index}
                                         removeBook={removeBook}
+                                        onShowDescription={(desc) => {
+                                            setSelectedDescription(desc);
+                                            setModalOpen(true);
+                                        }}
+                                        toggleReadingStatus={toggleReadingStatus}
                                     />
                                 ))}
                             </ul>
@@ -123,6 +234,13 @@ const MyBooksScreen = () => {
                     </DndContext>
                 )}
             </main>
+
+            {/* Modal */}
+            <DescriptionModal
+                isOpen={modalOpen}
+                description={selectedDescription}
+                onClose={() => setModalOpen(false)}
+            />
         </div>
     );
 };

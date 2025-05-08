@@ -1,7 +1,9 @@
+/* MyBooksScreen.css */
+
 /* =================================
    Estilos Generales
    ================================= */
-html {
+   html {
     height: 100%;
     box-sizing: border-box;
 }
@@ -16,7 +18,8 @@ html {
 
 body {
     background-color: #f6f6f6;
-    font-family: sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Un tipo de letra más moderno */
     font-size: 15px;
     line-height: 1.6;
     color: #333;
@@ -133,10 +136,19 @@ a {
 
 .bk-back {
     transform: rotateY(180deg) translateZ(15px);
-    background-color: #ccc;
-    color: #333;
+    background-color: #f9f9f9;
+    /* Un fondo más claro para el texto */
+    color: #555;
+    /* Texto más legible */
     padding: 15px;
     font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.bk-back strong {
+    font-weight: bold;
+    color: #333;
+    /* Resaltar las etiquetas de los datos */
 }
 
 .bk-left {
@@ -257,15 +269,39 @@ a {
 }
 
 .bk-info h3 {
-    font-size: 1em;
+    font-size: 1.1em;
+    /* Ligeramente más grande para el título */
     margin-top: 5px;
-    color: #333;
+    color: #222;
+    /* Color más oscuro para el título */
 }
 
-.bk-info h3 span {
+.bk-info .book-author {
     display: block;
-    font-size: 0.8em;
-    color: black;
+    font-size: 0.9em;
+    /* Color más claro para el autor */
+    font-style: bold;
+    /* Estilo itálico para el autor */
+}
+
+.bk-info .book-title {
+    display: block;
+    font-size: 12px;
+    /* Color más claro para el autor */
+    font-style: bold;
+    /* Estilo itálico para el autor */
+}
+
+.book-publishers {
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 5px;
+}
+
+.book-pages {
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 2px;
 }
 
 .bk-info p {
@@ -289,6 +325,7 @@ a {
     background-color: #d32f2f;
 }
 
+
 .no-books-message {
     display: flex;
     flex-direction: column;
@@ -305,6 +342,96 @@ a {
     text-transform: uppercase;
     font-size: 30px;
     font-weight: bold;
+}
+
+.bk-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.bk-edit-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.bk-edit-button:hover {
+    background-color: #2980b9;
+}
+
+/* =================================
+   MODAL
+   ================================= */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+.modal-description {
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.modal-content button {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease-in-out;
+    display: block; /* Hacer que el botón ocupe todo el ancho disponible */
+    margin: 10px auto 0; /* Establecer márgenes superior e inferior y centrar horizontalmente */
+    text-align: center; /* Asegurar que el texto dentro del botón también esté centrado (por si acaso) */
+}
+
+.modal-content button:hover {
+    background-color: #4cae4c;
+}
+
+.bk-desc-button {
+    background-color: #3498db;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.bk-desc-button:hover {
+    background-color: #2980b9;
 }
 
 /* =================================
@@ -332,6 +459,7 @@ a {
 
     .bk-book {
         transform: none !important;
+        top: 5px;
         display: flex;
         flex-direction: row;
         align-items: flex-start;
@@ -372,6 +500,7 @@ a {
 
     .bk-info {
         position: relative;
+        top: 10px;
         opacity: 1;
         transform: none;
         padding: 5px 10px;
@@ -387,6 +516,18 @@ a {
 
     .bk-info h3 span {
         font-size: 0.9em;
+    }
+
+    .book-publishers {
+        font-size: 0.85em;
+        color: #777;
+        margin-top: 3px;
+    }
+
+    .book-pages {
+        font-size: 0.85em;
+        color: #777;
+        margin-top: 1px;
     }
 
     .bk-info p {
@@ -411,5 +552,73 @@ a {
     .bk-top,
     .bk-bottom {
         display: none !important;
+    }
+}
+
+/* =================================
+   Estilos para el Bookmark
+   ================================= */
+.bookmark-container.leyendo {
+    position: absolute;
+    top: -5.3px;
+    right: 12.2px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+#bk-list li:hover .bookmark-container.leyendo {
+    transform: translateY(0) rotateY(20deg);
+}
+
+.bookmark-container.leyendo svg.active-bookmark {
+    fill: #ffc107;
+    width: 34px;
+    height: 34px;
+}
+
+.bookmark-container.no-leyendo {
+    position: absolute;
+    top: -5.3px;
+    right: 13px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+#bk-list li:hover .bookmark-container.no-leyendo {
+    transform: translateY(0) rotateY(20deg);
+}
+
+.bookmark-container.no-leyendo svg.inactive-bookmark {
+    fill: white;
+    color:#222;
+    transition: fill 0.2s ease-in-out;
+}
+
+.bookmark-container.no-leyendo svg.inactive-bookmark:hover {
+    fill: white;
+}
+
+/* Ajustes para el bookmark en modo móvil */
+@media (max-width: 576px) {
+    .bookmark-container.leyendo {
+        top: -2px;
+        right: -2px;
+        z-index: 100;
+    }
+
+    .bookmark-container.no-leyendo {
+        top: 1px;
+        right: 2px;
+        z-index: 100;
+    }
+
+    .bookmark-container.leyendo svg.active-bookmark {
+        width: 32px;
+        height: 32px;
+    }
+
+    .bookmark-container.no-leyendo svg.inactive-bookmark {
+        width: 24px;
+        height: 24px;
     }
 }

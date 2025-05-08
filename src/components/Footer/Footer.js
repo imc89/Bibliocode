@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HiBookmark } from "react-icons/hi";
+import { GoHeartFill } from "react-icons/go";
 import { IoLibrarySharp } from "react-icons/io5";
 import { IoSearch } from "react-icons/io5";
 
@@ -14,7 +15,11 @@ const Footer = () => {
                     <HiBookmark size={24} />
                     <span>Leyendo</span>
                 </Link>
-                <Link to="/library" className="footer-button">
+                <Link to="/wishlist" className="footer-button">
+                    <GoHeartFill size={24} />
+                    <span>Deseados</span>
+                </Link>
+                <Link to="/" className="footer-button">
                     <IoLibrarySharp size={24}/>
                     <span>Biblioteca</span>
                 </Link>
