@@ -11,6 +11,10 @@ const Footer = () => {
     return (
         <footer className="app-footer">
             <div className="footer-content">
+                <Link to="/" className="footer-button">
+                    <IoLibrarySharp size={24}/>
+                    <span>Biblioteca</span>
+                </Link>
                 <Link to="/reading" className="footer-button">
                     <HiBookmark size={24} />
                     <span>Leyendo</span>
@@ -18,10 +22,6 @@ const Footer = () => {
                 <Link to="/wishlist" className="footer-button">
                     <GoHeartFill size={24} />
                     <span>Deseados</span>
-                </Link>
-                <Link to="/" className="footer-button">
-                    <IoLibrarySharp size={24}/>
-                    <span>Biblioteca</span>
                 </Link>
                 <Link to="/search" className="footer-button">
                     <IoSearch size={24} />

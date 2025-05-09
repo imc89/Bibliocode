@@ -119,6 +119,7 @@
 }
 
 .book-info-container {
+  position: relative;
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -197,6 +198,16 @@
   align-items: center;
   border-radius: 10px;
   margin-top: 10px;
+}
+
+.wishlist-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 @media (max-width: 576px) {

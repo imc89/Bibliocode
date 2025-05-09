@@ -5,6 +5,7 @@ import {
   DecodeHintType,
 } from "@zxing/library";
 import { BiSolidMessageAltError } from "react-icons/bi";
+import { FcLikePlaceholder, FcLike } from "react-icons/fc"; // Importa los iconos de "me gusta"
 
 import "./BarcodeScannerScreen.css"; // Archivo CSS dedicado para esta pantalla
 
@@ -16,6 +17,7 @@ const BarcodeScannerScreen = ({ onBookAdded }) => {
   const [loadingBookData, setLoadingBookData] = useState(false);
   const [manualIsbn, setManualIsbn] = useState("");
   const [isManualIsbnValid, setIsManualIsbnValid] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false); // Estado local para el icono de "me gusta"
 
   const videoRef = useRef(null);
   const scanTimeout = useRef(null);
@@ -49,6 +51,15 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
       clearTimeout(scanTimeout.current);
     };
   }, [scanning]);
+
+  useEffect(() => {
+    // Comprobar si el libro actual está en la wishlist al cargar los datos
+    if (scannedBookData) {
+      const wishlist = localStorage.getItem('wishList');
+      const wishlistedBooks = wishlist ? JSON.parse(wishlist) : [];
+      setIsWishlisted(wishlistedBooks.some(book => book.isbn === scannedBookData.isbn));
+    }
+  }, [scannedBookData]);
 
   const startScanning = () => {
     scanAttempt.current++;
@@ -87,6 +98,7 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
   const fetchBookData = useCallback(async (isbn) => {
     setLoadingBookData(true);
     setScannedBookData(null);
+    setIsWishlisted(false); // Resetear el estado de wishlist al buscar un nuevo libro
 
     try {
       // Intentar con OpenLibrary (primera llamada por ISBN)
@@ -183,12 +195,14 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
     setScannedBookData(null);
     setScanError(null);
     setScanning(true);
+    setIsWishlisted(false); // Resetear el estado de wishlist al iniciar un nuevo escaneo
   };
 
   const handleAddBook = () => {
     if (scannedBookData && onBookAdded) {
       onBookAdded(scannedBookData);
       setScannedBookData(null);
+      setIsWishlisted(false); // Resetear el estado de wishlist después de agregar
     }
   };
 
@@ -205,6 +219,26 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
       fetchBookData(manualIsbn);
       setManualIsbn(""); // Limpiar el input después de la búsqueda
       setIsManualIsbnValid(false); // Resetear la validez
+      setIsWishlisted(false); // Resetear el estado de wishlist al buscar manualmente
+    }
+  };
+
+  const toggleWishlist = () => {
+    if (scannedBookData) {
+      const wishlist = localStorage.getItem('wishList');
+      const wishlistedBooks = wishlist ? JSON.parse(wishlist) : [];
+      const isAlreadyInWishlist = wishlistedBooks.some(book => book.isbn === scannedBookData.isbn);
+
+      let updatedWishlist;
+      if (isAlreadyInWishlist) {
+        updatedWishlist = wishlistedBooks.filter(book => book.isbn !== scannedBookData.isbn);
+        setIsWishlisted(false);
+      } else {
+        updatedWishlist = [...wishlistedBooks, scannedBookData];
+        setIsWishlisted(true);
+      }
+
+      localStorage.setItem('wishList', JSON.stringify(updatedWishlist));
     }
   };
 
@@ -243,6 +277,9 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
 
       {scannedBookData && !scanning && !loadingBookData && (
         <div className="book-info-container">
+          <button className="wishlist-button" onClick={toggleWishlist}>
+            {isWishlisted ? <FcLike size={35} style={{ stroke: 'black', strokeWidth: 1 }}  /> : <FcLikePlaceholder size={35} style={{ stroke: 'black', strokeWidth: 1 }} />}
+          </button>
           {scannedBookData.cover && (
             <img
               src={scannedBookData.cover}

@@ -1,23 +1,30 @@
 .app-footer {
-    background-color: #2c3e50; /* Mismo tono oscuro que la navegación */
+    background-color: #2c3e50;
+    /* Mismo tono oscuro que la navegación */
     color: white;
-    padding: 5px;
+    padding: 5px 0px;
     display: flex;
-    justify-content: space-around; /* Distribuir los botones uniformemente */
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Sombra superior sutil */
+    justify-content: space-around;
+    /* Distribuir los botones uniformemente */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    /* Sombra superior sutil */
     width: 100%;
     box-sizing: border-box;
-    position: fixed; /* Fijar al fondo de la ventana */
+    position: fixed;
+    /* Fijar al fondo de la ventana */
     bottom: 0;
     left: 0;
-    z-index: 10; /* Asegurar que esté por encima de otros elementos */
+    z-index: 10;
+    /* Asegurar que esté por encima de otros elementos */
 }
 
 .footer-content {
     display: flex;
     width: 100%;
-    max-width: 768px; /* Ancho máximo para centrar en pantallas grandes (igual que la navegación) */
-    justify-content: space-around; /* Distribuir los botones uniformemente */
+    max-width: 768px;
+    /* Ancho máximo para centrar en pantallas grandes (igual que la navegación) */
+    justify-content: space-around;
+    /* Distribuir los botones uniformemente */
     align-items: center;
 }
 
@@ -33,7 +40,8 @@
     width: 100px;
     height: 65px;
     transition: box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
-    min-width: 60px; /* Ancho mínimo para los botones */
+    min-width: 60px;
+    /* Ancho mínimo para los botones */
     box-sizing: border-box;
 }
 
@@ -50,10 +58,12 @@
 /* Estilos para pantallas más grandes */
 @media (min-width: 768px) {
     .app-footer {
-        justify-content: center; /* Centrar la barra en pantallas grandes */
+        justify-content: center;
+        /* Centrar la barra en pantallas grandes */
     }
 
     .footer-content {
-        justify-content: space-around; /* Distribuir los botones uniformemente */
+        justify-content: space-around;
+        /* Distribuir los botones uniformemente */
     }
 }

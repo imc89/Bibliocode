@@ -565,7 +565,6 @@ a {
     top: -5.3px;
     right: 12.2px;
     cursor: pointer;
-    z-index: 1;
 }
 
 #bk-list li:hover .bookmark-container.leyendo {
@@ -583,7 +582,6 @@ a {
     top: -5.3px;
     right: 13px;
     cursor: pointer;
-    z-index: 1;
 }
 
 #bk-list li:hover .bookmark-container.no-leyendo {
@@ -600,18 +598,29 @@ a {
     fill: white;
 }
 
+.bk-buttons-wish {
+    display: flex;
+    justify-content: flex-end; /* Or space-between, space-around, etc. */
+    align-items: center; /* Align items vertically in the center */
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.bookmark-container.wished {
+    cursor: pointer;
+    margin-left: 0.5rem; /* Add some space to the left of the heart */
+}
+
 /* Ajustes para el bookmark en modo móvil */
 @media (max-width: 576px) {
     .bookmark-container.leyendo {
         top: -2px;
         right: -2px;
-        z-index: 1;
     }
 
     .bookmark-container.no-leyendo {
         top: 1px;
         right: 2px;
-        z-index: 1;
     }
 
     .bookmark-container.leyendo svg.active-bookmark {
