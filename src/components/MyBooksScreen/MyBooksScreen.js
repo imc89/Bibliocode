@@ -125,7 +125,7 @@ const SortableBook = ({ book, index, removeBook, onShowDescription, toggleReadin
                     )}
                 </div>
             </div>
-            <div className="bk-book">
+            <div className="bk-book" style={{ cursor: isDragging ? 'grabbing' : 'grab' }}> {/* Establecer el cursor aquí */}
                 <div className="bk-front" {...listeners} style={frontStyle}>
                     <div className="bk-cover-back" style={{
                         backgroundImage: book.cover ? `url(${book.cover})` : 'none',
@@ -158,6 +158,7 @@ const MyBooksScreen = () => {
         return storedReading ? JSON.parse(storedReading) : [];
     });
     const [activeId, setActiveId] = useState(null);
+    const [isDraggingAny, setIsDraggingAny] = useState(false); // Nuevo estado para rastrear el arrastre
 
     useEffect(() => {
         localStorage.setItem('myBooks', JSON.stringify(myBooks));
@@ -166,6 +167,10 @@ const MyBooksScreen = () => {
     useEffect(() => {
         localStorage.setItem('readingList', JSON.stringify(readingList));
     }, [readingList]);
+
+    useEffect(() => {
+        document.body.style.cursor = isDraggingAny ? 'grabbing' : 'default'; // Aplicar estilo al body
+    }, [isDraggingAny]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -179,11 +184,13 @@ const MyBooksScreen = () => {
     const handleDragStart = (event) => {
         const { active } = event;
         setActiveId(active.id);
+        setIsDraggingAny(true); // Indicar que se ha iniciado el arrastre
     };
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
         setActiveId(null);
+        setIsDraggingAny(false); // Indicar que el arrastre ha terminado
         if (active.id !== over?.id) {
             const oldIndex = myBooks.findIndex(book => book.isbn === active.id);
             const newIndex = myBooks.findIndex(book => book.isbn === over.id);

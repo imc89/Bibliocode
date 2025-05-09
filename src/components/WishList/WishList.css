@@ -611,6 +611,16 @@ a {
     margin-left: 0.5rem; /* Add some space to the left of the heart */
 }
 
+.bk-acquire-button {
+    border: none;
+    background-color: transparent; /* Para hacerlo completamente transparente */
+    padding: 0; /* Quitar cualquier padding interno */
+    margin-right: 10px; /* Espacio entre el botón y el icono de "me gusta" */
+    font-size: 1em; /* Ajusta el tamaño de la fuente si es necesario */
+    cursor: pointer; /* Indica que es interactivo */
+    outline: none; /* Quitar el contorno al enfocar */
+}
+
 /* Ajustes para el bookmark en modo móvil */
 @media (max-width: 576px) {
     .bookmark-container.leyendo {

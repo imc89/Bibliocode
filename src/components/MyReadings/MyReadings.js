@@ -7,6 +7,7 @@ import {
     useSensor,
     useSensors,
     PointerSensor,
+    DragOverlay, // Import DragOverlay
 } from '@dnd-kit/core';
 import {
     SortableContext,
@@ -37,7 +38,7 @@ const DescriptionModal = ({ isOpen, onClose, description }) => {
 };
 
 // ✅ Componente de libro en lectura (Sortable)
-const SortableReadingBook = ({ book, index, removeBook, onShowDescription, toggleReadingStatus }) => {
+const SortableReadingBook = ({ book, index, onShowDescription, toggleReadingStatus }) => {
     const navigate = useNavigate();
     const {
         attributes,
@@ -45,11 +46,18 @@ const SortableReadingBook = ({ book, index, removeBook, onShowDescription, toggl
         setNodeRef,
         transform,
         transition,
+        isDragging, // Get isDragging
     } = useSortable({ id: book.isbn });
 
     const style = {
         transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
         transition,
+        opacity: isDragging ? 0.5 : 1, // Add opacity feedback
+    };
+
+    const frontStyle = {
+        touchAction: 'none',
+        cursor: 'grab',
     };
 
     return (
@@ -75,16 +83,6 @@ const SortableReadingBook = ({ book, index, removeBook, onShowDescription, toggl
                 )}
                 <div className="bk-buttons">
                     <button
-                        className="bk-remove-button"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            removeBook(book.isbn);
-                        }}
-                    >
-                        Eliminar
-                    </button>
-                    <button
                         className="bk-edit-button"
                         onClick={(e) => {
                             e.preventDefault();
@@ -109,8 +107,8 @@ const SortableReadingBook = ({ book, index, removeBook, onShowDescription, toggl
                 </div>
             </div>
 
-            <div className="bk-book">
-                <div className="bk-front" {...listeners}>
+            <div className="bk-book" style={{ cursor: isDragging ? 'grabbing' : 'grab' }}> {/* Apply cursor */}
+                <div className="bk-front" {...listeners} style={frontStyle}> {/* Apply listeners and style */}
                     <div className="bk-cover-back" style={{
                         backgroundImage: book.cover ? `url(${book.cover})` : 'none',
                         backgroundSize: '1000%',
@@ -141,6 +139,8 @@ const MyReadings = () => {
         const storedBooks = localStorage.getItem('myBooks');
         return storedBooks ? JSON.parse(storedBooks) : [];
     });
+    const [activeId, setActiveId] = useState(null);
+    const [isDraggingAny, setIsDraggingAny] = useState(false); // Track dragging state
 
     useEffect(() => {
         localStorage.setItem('readingList', JSON.stringify(readingList));
@@ -150,10 +150,27 @@ const MyReadings = () => {
         localStorage.setItem('myBooks', JSON.stringify(myBooks));
     }, [myBooks]);
 
-    const sensors = useSensors(useSensor(PointerSensor));
+    useEffect(() => {
+        document.body.style.cursor = isDraggingAny ? 'grabbing' : 'default'; // Apply cursor to body
+    }, [isDraggingAny]);
+
+    const sensors = useSensors(useSensor(PointerSensor, {
+        activationConstraint: {
+            delay: 100,
+            tolerance: 5,
+        },
+    }));
+
+    const handleDragStart = (event) => {
+        const { active } = event;
+        setActiveId(active.id);
+        setIsDraggingAny(true); // Set dragging state
+    };
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
+        setActiveId(null);
+        setIsDraggingAny(false); // Reset dragging state
         if (active.id !== over?.id) {
             const oldIndex = readingList.findIndex(book => book.isbn === active.id);
             const newIndex = readingList.findIndex(book => book.isbn === over.id);
@@ -161,22 +178,26 @@ const MyReadings = () => {
         }
     };
 
-    const removeBookFromReadingList = (isbn) => {
-        setReadingList(prevList => prevList.filter(book => book.isbn !== isbn));
-        setMyBooks(prevBooks => prevBooks.map(book =>
-            book.isbn === isbn ? { ...book, status: 'Para leer' } : book
-        ));
-    };
-
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDescription, setSelectedDescription] = useState('');
+    const activeBook = readingList.find(book => book.isbn === activeId); // Get active book for DragOverlay
 
     const toggleReadingStatus = (isbn) => {
-        const bookInReadingList = readingList.find(book => book.isbn === isbn);
-        setReadingList(prevList => prevList.filter(book => book.isbn !== isbn));
-        setMyBooks(prevBooks => prevBooks.map(book =>
-            book.isbn === isbn ? { ...book, status: 'Para leer' } : book
-        ));
+        const bookToToggle = readingList.find(book => book.isbn === isbn);
+        if (!bookToToggle) {
+            const bookToAdd = myBooks.find(book => book.isbn === isbn);
+            if (bookToAdd) {
+                setReadingList(prevList => [...prevList, { ...bookToAdd, status: 'Leyendo' }]);
+                setMyBooks(prevBooks => prevBooks.map(b =>
+                    b.isbn === isbn ? { ...b, status: 'Leyendo' } : b
+                ));
+            }
+        } else {
+            setReadingList(prevList => prevList.filter(book => book.isbn !== isbn));
+            setMyBooks(prevBooks => prevBooks.map(b =>
+                b.isbn === isbn ? { ...b, status: 'Para leer' } : b
+            ));
+        }
     };
 
     return (
@@ -188,7 +209,12 @@ const MyReadings = () => {
                         No hay libros en tu lista de lectura.
                     </div>
                 ) : (
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragStart={handleDragStart} // Add onDragStart
+                        onDragEnd={handleDragEnd}
+                    >
                         <SortableContext items={readingList.map(book => book.isbn)} strategy={verticalListSortingStrategy}>
                             <ul id="bk-list">
                                 {readingList.map((book, index) => (
@@ -196,7 +222,6 @@ const MyReadings = () => {
                                         key={book.isbn}
                                         book={book}
                                         index={index}
-                                        removeBook={removeBookFromReadingList}
                                         onShowDescription={(desc) => {
                                             setSelectedDescription(desc);
                                             setModalOpen(true);
@@ -206,6 +231,21 @@ const MyReadings = () => {
                                 ))}
                             </ul>
                         </SortableContext>
+                        <DragOverlay> {/* Add DragOverlay */}
+                            {activeId && activeBook && (
+                                <div className="drag-overlay-item">
+                                    <div className="bk-book">
+                                        <div className="bk-front">
+                                            <div className="bk-cover" style={{ backgroundImage: activeBook.cover ? `url(${activeBook.cover}), url(${activeBook.cover})` : 'none' }}></div>
+                                        </div>
+                                    </div>
+                                    <div className="bk-info">
+                                        <b className="book-title">{activeBook.title || 'Autor'}</b>
+                                        {activeBook.author && <p className="book-author"><strong>Autor:</strong> {activeBook.author}</p>}
+                                    </div>
+                                </div>
+                            )}
+                        </DragOverlay>
                     </DndContext>
                 )}
             </main>
