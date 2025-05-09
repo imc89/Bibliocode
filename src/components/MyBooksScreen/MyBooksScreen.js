@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import {
     DndContext,
     closestCenter,
     useSensor,
     useSensors,
     PointerSensor,
+    DragOverlay,
 } from '@dnd-kit/core';
 import {
     SortableContext,
@@ -46,11 +46,18 @@ const SortableBook = ({ book, index, removeBook, onShowDescription, toggleReadin
         setNodeRef,
         transform,
         transition,
+        isDragging,
     } = useSortable({ id: book.isbn });
 
     const style = {
         transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
         transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    const frontStyle = {
+        touchAction: 'none',
+        cursor: 'grab',
     };
 
     return (
@@ -61,7 +68,7 @@ const SortableBook = ({ book, index, removeBook, onShowDescription, toggleReadin
                     e.stopPropagation();
                     toggleReadingStatus(book.isbn);
                 }}>
-                    <FcBookmark size={34} style={{ stroke: 'black', strokeWidth: 2.5 }}  className="active-bookmark" />
+                    <FcBookmark size={34} style={{ stroke: 'black', strokeWidth: 2.5 }} className="active-bookmark" />
                 </div>
             ) : (
                 <div className="bookmark-container no-leyendo" onClick={(e) => {
@@ -69,13 +76,11 @@ const SortableBook = ({ book, index, removeBook, onShowDescription, toggleReadin
                     e.stopPropagation();
                     toggleReadingStatus(book.isbn);
                 }}>
-                    <BiSolidBookmark size={32} style={{ stroke: 'black', strokeWidth: 1.5 }}  className="inactive-bookmark" />
-                    {/* <BsBookmark size={30} className="inactive-bookmark" /> */}
+                    <BiSolidBookmark size={32} style={{ stroke: 'black', strokeWidth: 1.5 }} className="inactive-bookmark" />
                 </div>
             )}
             <div className="bk-info">
                 <b className="book-title">{book.title || 'Autor'}</b>
-
                 {book.author && book.author.length > 0 && (
                     <p className="book-author"><strong>Autor:</strong> {book.author}</p>
                 )}
@@ -120,9 +125,8 @@ const SortableBook = ({ book, index, removeBook, onShowDescription, toggleReadin
                     )}
                 </div>
             </div>
-
             <div className="bk-book">
-                <div className="bk-front" {...listeners}>
+                <div className="bk-front" {...listeners} style={frontStyle}>
                     <div className="bk-cover-back" style={{
                         backgroundImage: book.cover ? `url(${book.cover})` : 'none',
                         backgroundSize: '1000%',
@@ -153,6 +157,7 @@ const MyBooksScreen = () => {
         const storedReading = localStorage.getItem('readingList');
         return storedReading ? JSON.parse(storedReading) : [];
     });
+    const [activeId, setActiveId] = useState(null);
 
     useEffect(() => {
         localStorage.setItem('myBooks', JSON.stringify(myBooks));
@@ -162,10 +167,23 @@ const MyBooksScreen = () => {
         localStorage.setItem('readingList', JSON.stringify(readingList));
     }, [readingList]);
 
-    const sensors = useSensors(useSensor(PointerSensor));
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                delay: 100,
+                tolerance: 5,
+            },
+        })
+    );
+
+    const handleDragStart = (event) => {
+        const { active } = event;
+        setActiveId(active.id);
+    };
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
+        setActiveId(null);
         if (active.id !== over?.id) {
             const oldIndex = myBooks.findIndex(book => book.isbn === active.id);
             const newIndex = myBooks.findIndex(book => book.isbn === over.id);
@@ -175,7 +193,7 @@ const MyBooksScreen = () => {
 
     const removeBook = (isbn) => {
         setMyBooks((prev) => prev.filter(book => book.isbn !== isbn));
-        setReadingList((prevList) => prevList.filter(book => book.isbn !== isbn)); // Remove from reading list as well
+        setReadingList((prevList) => prevList.filter(book => book.isbn !== isbn));
     };
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -188,21 +206,19 @@ const MyBooksScreen = () => {
         const isCurrentlyReading = readingList.some(book => book.isbn === isbn);
 
         if (isCurrentlyReading) {
-            // Si está en la lista de leyendo, lo removemos
             setReadingList(prevList => prevList.filter(book => book.isbn !== isbn));
-            // Y actualizamos el status en la lista principal
             setMyBooks(prevBooks => prevBooks.map(book =>
                 book.isbn === isbn ? { ...book, status: 'Para leer' } : book
             ));
         } else {
-            // Si no está en la lista de leyendo, lo añadimos
             setReadingList(prevList => [...prevList, bookToToggle]);
-            // Y actualizamos el status en la lista principal
             setMyBooks(prevBooks => prevBooks.map(book =>
                 book.isbn === isbn ? { ...book, status: 'Leyendo' } : book
             ));
         }
     };
+
+    const activeBook = myBooks.find(book => book.isbn === activeId);
 
     return (
         <div className="container">
@@ -213,7 +229,12 @@ const MyBooksScreen = () => {
                         No hay libros guardados.
                     </div>
                 ) : (
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                    >
                         <SortableContext items={myBooks.map(book => book.isbn)} strategy={verticalListSortingStrategy}>
                             <ul id="bk-list">
                                 {myBooks.map((book, index) => (
@@ -231,6 +252,21 @@ const MyBooksScreen = () => {
                                 ))}
                             </ul>
                         </SortableContext>
+                        <DragOverlay>
+                            {activeId && activeBook && (
+                                <div className="drag-overlay-item">
+                                    <div className="bk-book">
+                                        <div className="bk-front">
+                                            <div className="bk-cover" style={{ backgroundImage: activeBook.cover ? `url(${activeBook.cover}), url(${activeBook.cover})` : 'none' }}></div>
+                                        </div>
+                                    </div>
+                                    <div className="bk-info">
+                                        <b className="book-title">{activeBook.title || 'Autor'}</b>
+                                        {activeBook.author && <p className="book-author"><strong>Autor:</strong> {activeBook.author}</p>}
+                                    </div>
+                                </div>
+                            )}
+                        </DragOverlay>
                     </DndContext>
                 )}
             </main>
