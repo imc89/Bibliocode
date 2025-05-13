@@ -9,6 +9,66 @@ import { FcLikePlaceholder, FcLike } from "react-icons/fc"; // Importa los icono
 
 import "./BarcodeScannerScreen.css"; // Archivo CSS dedicado para esta pantalla
 
+const convertImageToBase64 = (url) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.setAttribute('crossOrigin', 'anonymous');
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const base64String = canvas.toDataURL();
+      resolve(base64String);
+    };
+    img.onerror = (error) => {
+      reject(error);
+    };
+    img.src = url;
+  });
+};
+
+const fetchFromGoogleBooks = async (isbn, convertImageToBase64, setScannedBookData, setScanError) => {
+  try {
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+    const data = await res.json();
+
+    if (!data.items || data.totalItems === 0) {
+      throw new Error("Libro no encontrado en Google Books.");
+    }
+
+    const volume = data.items[0].volumeInfo;
+    let coverBase64 = "";
+    const coverUrl = volume.imageLinks?.thumbnail;
+
+    if (coverUrl) {
+      try {
+        coverBase64 = await convertImageToBase64(coverUrl);
+      } catch (error) {
+        console.warn("Error al convertir la portada de Google Books a Base64:", error);
+        coverBase64 = ""; // O puedes usar una imagen por defecto en Base64
+      }
+    }
+
+    const bookData = {
+      title: volume.title || "Título desconocido",
+      author: volume.authors?.[0] || "Autor desconocido",
+      isbn,
+      cover: coverBase64,
+      description: volume.description || "",
+      publishers: volume.publisher ? [volume.publisher] : [],
+      numberOfPages: volume.pageCount || null,
+    };
+
+    setScannedBookData(bookData);
+    setScanError(null);
+  } catch (err) {
+    setScanError("No se pudo obtener información del libro en ninguna fuente.");
+    console.error("Fallo también en Google Books:", err);
+  }
+};
+
 const BarcodeScannerScreen = ({ onBookAdded }) => {
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState(null);
@@ -112,6 +172,7 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
       let worksKey = dataIsbn.works?.[0]?.key;
       let publishers = dataIsbn.publishers || [];
       let numberOfPages = dataIsbn.number_of_pages || null;
+      let coverBase64 = "";
 
       // Buscar descripción más detallada y author key desde la 'obra' (segunda llamada)
       if (worksKey) {
@@ -141,11 +202,19 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
         }
       }
 
+      const coverUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+      try {
+        coverBase64 = await convertImageToBase64(coverUrl);
+      } catch (error) {
+        console.warn("Error al convertir la portada a Base64:", error);
+        coverBase64 = ""; // O puedes usar una imagen por defecto en Base64
+      }
+
       setScannedBookData({
         title,
         author,
         isbn,
-        cover: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`,
+        cover: coverBase64,
         description,
         publishers,
         numberOfPages,
@@ -154,41 +223,12 @@ Intenta de nuevo o ingresa el ISBN manualmente.`
       setScanError(null);
     } catch (err) {
       console.warn("Fallo en OpenLibrary, intentando Google Books...", err);
-      await fetchFromGoogleBooks(isbn);
+      await fetchFromGoogleBooks(isbn, convertImageToBase64, setScannedBookData, setScanError);
     }
 
     setLoadingBookData(false);
     setScanning(false);
-  }, []);
-
-  const fetchFromGoogleBooks = useCallback(async (isbn) => {
-    try {
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
-      const data = await res.json();
-
-      if (!data.items || data.totalItems === 0) {
-        throw new Error("Libro no encontrado en Google Books.");
-      }
-
-      const volume = data.items[0].volumeInfo;
-
-      const bookData = {
-        title: volume.title || "Título desconocido",
-        author: volume.authors?.[0] || "Autor desconocido",
-        isbn,
-        cover: volume.imageLinks?.thumbnail || "",
-        description: volume.description || "",
-        publishers: volume.publisher ? [volume.publisher] : [],
-        numberOfPages: volume.pageCount || null,
-      };
-
-      setScannedBookData(bookData);
-      setScanError(null);
-    } catch (err) {
-      setScanError("No se pudo obtener información del libro en ninguna fuente.");
-      console.error("Fallo también en Google Books:", err);
-    }
-  }, []);
+  }, [convertImageToBase64, setScannedBookData, setScanError]);
 
   const handleClickScan = () => {
     setResult(null);

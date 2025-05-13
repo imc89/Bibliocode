@@ -12,7 +12,8 @@ const NavigationMenu = () => {
                     <SlSettings size={24} />
                 </Link>
                 <Link to="/" className="nav-button nav-center">
-                    MY BOOKS
+                    <img src={`${process.env.PUBLIC_URL}/icon.png`} />
+                    <span>Bibliocode</span>
                 </Link>
                 <Link to="/scanner" className="nav-button nav-right">
                     <CiBarcode size={24} />

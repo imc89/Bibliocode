@@ -18,7 +18,7 @@ import {
 import { HiOutlineBookmarkAlt } from "react-icons/hi";
 import { MdEditDocument } from "react-icons/md";
 import { FiFileText } from "react-icons/fi";
-import { FcBookmark } from "react-icons/fc";
+import { BiSolidBookmark } from "react-icons/bi";
 
 import './MyReadings.css'; // Reusing the same styles
 
@@ -67,7 +67,7 @@ const SortableReadingBook = ({ book, index, onShowDescription, toggleReadingStat
                 e.stopPropagation();
                 toggleReadingStatus(book.isbn);
             }}>
-                <FcBookmark size={34} style={{ stroke: 'black', strokeWidth: 2.5 }} className="active-bookmark" />
+                <BiSolidBookmark size={32} style={{ fill: 'red', stroke: 'black', strokeWidth: 1.5 }} className="active-bookmark" />
             </div>
             <div className="bk-info">
                 <b className="book-title">{book.title || 'Autor'}</b>

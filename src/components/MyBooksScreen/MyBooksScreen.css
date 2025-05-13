@@ -3,7 +3,7 @@
 /* =================================
    Estilos Generales
    ================================= */
-   html {
+html {
     height: 100%;
     box-sizing: border-box;
 }
@@ -414,9 +414,12 @@ a {
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.2s ease-in-out;
-    display: block; /* Hacer que el botón ocupe todo el ancho disponible */
-    margin: 10px auto 0; /* Establecer márgenes superior e inferior y centrar horizontalmente */
-    text-align: center; /* Asegurar que el texto dentro del botón también esté centrado (por si acaso) */
+    display: block;
+    /* Hacer que el botón ocupe todo el ancho disponible */
+    margin: 10px auto 0;
+    /* Establecer márgenes superior e inferior y centrar horizontalmente */
+    text-align: center;
+    /* Asegurar que el texto dentro del botón también esté centrado (por si acaso) */
 }
 
 .modal-content button:hover {
@@ -573,9 +576,11 @@ a {
 }
 
 .bookmark-container.leyendo svg.active-bookmark {
-    fill: #ffc107;
-    width: 34px;
-    height: 34px;
+    fill: red;
+    stroke: black;
+    stroke-width: 1.5px;
+    color: #222;
+    transition: fill 0.2s ease-in-out;
 }
 
 .bookmark-container.no-leyendo {
@@ -592,7 +597,9 @@ a {
 
 .bookmark-container.no-leyendo svg.inactive-bookmark {
     fill: white;
-    color:#222;
+    stroke: black;
+    stroke-width: 1.5px;
+    color: #222;
     transition: fill 0.2s ease-in-out;
 }
 
@@ -603,8 +610,8 @@ a {
 /* Ajustes para el bookmark en modo móvil */
 @media (max-width: 576px) {
     .bookmark-container.leyendo {
-        top: -2px;
-        right: -2px;
+        top: 1px;
+        right: 2px;
         z-index: 1;
     }
 
@@ -615,8 +622,8 @@ a {
     }
 
     .bookmark-container.leyendo svg.active-bookmark {
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
     }
 
     .bookmark-container.no-leyendo svg.inactive-bookmark {

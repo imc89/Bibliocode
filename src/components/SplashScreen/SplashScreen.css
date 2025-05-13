@@ -1,0 +1,31 @@
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(180deg, rgb(141, 199, 231) 0%, rgb(40, 44, 52) 100%);
+  background-size: cover;
+  /* Ajusta según tus necesidades */
+  z-index: 9999;
+  font-family: "Libre Barcode 39 Text";
+  font-weight: 400;
+  font-style: normal;
+  color: white;
+  font-size: 70px;
+}
+
+.splash-logo {
+  width: 1250px;
+  height: 1250px;
+}
+
+.splash-text {
+  position: fixed;
+  top:450px;
+  z-index: 1;
+}

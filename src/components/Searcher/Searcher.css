@@ -1,73 +1,194 @@
-/* SearchPage.css */
+/* Searcher.css */
 
 .search-page-container {
-    padding-top: 95px;
-    padding-bottom: 90px;
-}
-
-.search-input-area {
-    background-color: #f9f9f9;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding-top: 80px;
+    padding-bottom: 20px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.search-header {
+    display: flex;
+    align-items: center;
     gap: 15px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 90%;
+    max-width: 768px;
 }
 
 .search-bar {
+    flex-grow: 1;
     display: flex;
     align-items: center;
     border: 1px solid #ccc;
     border-radius: 5px;
-    padding: 5px 10px;
+    padding: 5px 8px;
     background-color: white;
 }
 
 .search-icon,
 .clear-icon {
-    font-size: 20px;
+    font-size: 18px;
     color: #777;
-    margin-right: 10px;
+    margin-right: 8px;
     cursor: pointer;
 }
 
 .clear-icon {
     margin-left: auto;
-    margin-right: 5px;
+    margin-right: 3px;
 }
 
 .search-bar input[type="text"] {
     flex-grow: 1;
     border: none;
-    padding: 8px 0;
-    font-size: 16px;
+    padding: 6px 0;
+    font-size: 14px;
     outline: none;
+}
+
+.filter-button-mobile {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: none;
+    /* Ocultar en desktop */
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.filter-icon {
+    margin-right: -5px;
 }
 
 .filter-section {
     display: flex;
-    align-items: center;
     gap: 15px;
-    color: #555;
-}
-
-.filter-icon {
-    font-size: 24px;
-}
-
-.filter-section label {
-    display: flex;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     align-items: center;
-    gap: 5px;
-    cursor: pointer;
+    margin-bottom: 15px;
+    width: 90%;
+    max-width: 768px;
 }
 
-.filter-section input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+.filter-title-desktop {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.label-filter {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    font-size: 14px;
+}
+
+.check-filter {
+    width: 18px;
+    height: 18px;
+}
+
+#bk-lists {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    width: 90%;
+    max-width: 1200px;
+}
+
+.search-result-item {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    align-items: center;
+    text-align: center;
+}
+
+.search-result-item .bk-book {
+    width: 80%;
+    max-width: 120px;
+    height: auto;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.search-result-item .bk-front {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+.search-result-item .bk-cover-back,
+.search-result-item .bk-cover {
+    background-position: center;
+    height: 100%;
+    width: 100%;
+}
+
+.search-result-item .bk-cover-back {
+    filter: blur(3px);
+    opacity: 0.6;
+}
+
+.search-result-item .bk-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search-result-item .book-title {
+    font-size: 1em;
+    font-weight: bold;
+    margin-bottom: 3px;
+    color: #333;
+}
+
+.search-result-item .book-author,
+.search-result-item .book-publishers {
+    font-size: 0.8em;
+    color: #555;
+    margin-bottom: 2px;
+}
+
+.search-result-item .bk-buttons {
+    margin-top: 8px;
+}
+
+.search-result-item .bk-view-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 4px;
     cursor: pointer;
+    font-size: 0.8em;
+}
+
+.search-result-item .bk-view-button:hover {
+    background-color: #0056b3;
 }
 
 .no-books-message-search {
@@ -76,7 +197,6 @@
     text-align: center;
     align-items: center;
     justify-content: center;
-    position: fixed;
     gap: 15px;
     top: 0;
     left: 0;
@@ -86,55 +206,180 @@
     text-transform: uppercase;
     font-size: 30px;
     font-weight: bold;
-    z-index: -1;
 }
 
-/* Reuse existing styles from MyBooksScreen.css for the book list */
-#bk-list {
+/* =================================
+   Lista de Libros
+   ================================= */
+
+
+#bk-lists {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 20px auto;
+    /* Add vertical margin for spacing */
     display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    /* Use flex to arrange items horizontally */
+    justify-content: center;
+    /* Center the row of book items */
+    gap: 20px;
+    /* Space between book items */
+    max-width: 1200px;
+    /* Optional: Limit the maximum width of the row */
 }
 
-#bk-list li {
-    margin: 20px;
+#bk-lists li.book-item {
+    width: 200px;
+    /* Set a fixed width for each book item */
+    height: 300px;
+    /* Set a fixed height for each book item */
+    perspective: 1500px;
+    position: relative;
+    /* ... other styles for the book item ... */
+    flex-shrink: 0;
+    /* Prevent items from shrinking below their defined width */
+}
+
+#bk-lists li {
+    margin: 10px;
     width: 200px;
     height: 300px;
     perspective: 1500px;
     position: relative;
 }
 
-/* Adjust for smaller screens if needed */
+#bk-lists li:hover .bk-info {
+    opacity: 1;
+    left: 5px;
+    transform: translateY(0) rotateY(20deg);
+}
+
+#bk-lists li:hover .bk-book {
+    opacity: 1;
+    transform: translateY(0) rotateY(20deg);
+}
+
+#bk-lists li {
+    margin: 10px;
+    width: 200px;
+    height: 300px;
+    perspective: 1500px;
+    position: relative;
+}
+
+#bk-lists li:hover .bk-info {
+    opacity: 1;
+    left: 5px;
+    transform: translateY(0) rotateY(20deg);
+}
+
+#bk-lists li:hover .bk-book {
+    opacity: 1;
+    transform: translateY(0) rotateY(20deg);
+}
+
+/* Mobile Styles (Specific to max-width: 576px) */
 @media (max-width: 576px) {
-    .search-input-area {
-        flex-direction: column;
-    }
 
-    .filter-section {
+    #bk-lists {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        /* Adjust grid for very small screens */
         flex-direction: column;
-        align-items: flex-start;
-    }
-
-    #bk-list {
-        flex-direction: column;
+        /* Stack items on very small screens */
         align-items: center;
     }
 
-    #bk-list li {
+    #bk-lists li {
         width: 90%;
         height: auto;
         margin: 10px 0;
         perspective: none;
         display: flex;
-        flex-direction: row-reverse;
+        flex-direction: row;
         align-items: flex-start;
+        position: relative;
         background: rgb(255 255 255 / 40%);
         padding: 10px;
         border-radius: 10px;
     }
 
-    /* ... other mobile adjustments from MyBooksScreen.css ... */
+    #bk-lists li.book-item {
+        width: auto;
+        height: auto;
+        perspective: 1500px;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .search-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-section {
+        display: none;
+        /* Hidden by default on mobile */
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-top: 10px;
+    }
+
+    .filter-section.open-mobile {
+        display: flex;
+        /* Show filters when open-mobile class is applied */
+    }
+
+    .filter-title-desktop {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .label-filter {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        font-size: 14px;
+    }
+
+    .check-filter {
+        width: 20px;
+        height: 20px;
+    }
+
+    .filter-icon {
+        margin-right: 0px;
+    }
+
+    .filter-icon-desktop {
+        display: none;
+    }
+
+    .filter-button-mobile {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .search-result-item {
+        flex-direction: row;
+        /* Adjust layout of individual items on very small screens */
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .search-result-item .bk-book {
+        margin-right: 10px;
+        margin-bottom: 0;
+        max-width: 80px;
+        /* Adjust book cover size */
+    }
+
+    .search-result-item .bk-info {
+        align-items: flex-start;
+    }
 }

@@ -9,8 +9,17 @@ import MyBooksPage from './pages/MyBooksPage';
 import EditBookPage from './pages/EditBookPage';
 import SearchPage from './pages//SearchPage';
 
+import SplashScreen from './components/SplashScreen/SplashScreen';
+
 
 function App() {
+
+    const [showSplash, setShowSplash] = useState(true);
+
+    const handleSplashFinish = () => {
+        setShowSplash(false);
+    };
+
     const [myBooks, setMyBooks] = useState(() => {
         const storedBooks = localStorage.getItem('myBooks');
         return storedBooks ? JSON.parse(storedBooks) : [];
@@ -21,19 +30,25 @@ function App() {
     }, [myBooks]);
 
 
-    return (
-        <Router> {/* Usamos el Router renombrado (que es HashRouter) */}
-            <div>
-                <Routes>
-                    <Route path="/" element={<MyBooksPage />} />
-                    <Route path="/scanner" element={<ScanPage />} />
-                    <Route path="/reading" element={<MyReadingsPage />} />
-                    <Route path="/wishlist" element={<WishListPage />} />
-                    <Route path="/editar/:isbn" element={<EditBookPage />} />
-                    <Route path="/search" element={<SearchPage />} />
 
-                </Routes>
-            </div>
+    return (
+        // <Router basename="/Bibliocode">
+        <Router>
+            {showSplash ? (
+                <SplashScreen onFinish={handleSplashFinish} />
+            ) : (
+                <>
+                    <Routes>
+                        <Route path="/" element={<MyBooksPage />} />
+                        <Route path="/scanner" element={<ScanPage />} />
+                        <Route path="/reading" element={<MyReadingsPage />} />
+                        <Route path="/wishlist" element={<WishListPage />} />
+                        <Route path="/editar/:isbn" element={<EditBookPage />} />
+                        <Route path="/search" element={<SearchPage />} />
+
+                    </Routes>
+                </>
+            )}
         </Router>
     );
 }

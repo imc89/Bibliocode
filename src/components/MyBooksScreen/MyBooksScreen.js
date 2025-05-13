@@ -18,7 +18,6 @@ import { IoLibrarySharp } from "react-icons/io5";
 import { MdEditDocument } from "react-icons/md";
 import { FiFileText } from "react-icons/fi";
 import { BiSolidBookmark } from "react-icons/bi";
-import { FcBookmark } from "react-icons/fc";
 
 import './MyBooksScreen.css';
 
@@ -68,7 +67,7 @@ const SortableBook = ({ book, index, removeBook, onShowDescription, toggleReadin
                     e.stopPropagation();
                     toggleReadingStatus(book.isbn);
                 }}>
-                    <FcBookmark size={34} style={{ stroke: 'black', strokeWidth: 2.5 }} className="active-bookmark" />
+                    <BiSolidBookmark size={32} className="active-bookmark" />
                 </div>
             ) : (
                 <div className="bookmark-container no-leyendo" onClick={(e) => {
@@ -76,7 +75,7 @@ const SortableBook = ({ book, index, removeBook, onShowDescription, toggleReadin
                     e.stopPropagation();
                     toggleReadingStatus(book.isbn);
                 }}>
-                    <BiSolidBookmark size={32} style={{ stroke: 'black', strokeWidth: 1.5 }} className="inactive-bookmark" />
+                    <BiSolidBookmark size={32} className="inactive-bookmark" />
                 </div>
             )}
             <div className="bk-info">
